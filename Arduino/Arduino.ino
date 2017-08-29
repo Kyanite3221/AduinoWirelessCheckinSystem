@@ -1,12 +1,15 @@
 #define nullptr 0
 
+#define InternalLed 13
+
 #define RFIDSendCID 1
-#define InfoReqCID 2
+#define GroupReqCID 2
 #define GroupRevCID 3
 #define PingCID 4
 #define PongCID 5
 
 #define InfoReqInterval 10000
+#define LoopDelay 1000
 
 void setup() {
   // put your setup code here, to run once:
@@ -70,6 +73,11 @@ int checkBufferReturn(const int bufferPos){
   if(bufferPos >= 3){
     if(checkDataEqualString("OK", buffer + bufferPos - 3)){
       return 1;
+    }
+  }
+  if(bufferPos >= 5){
+    if(checkDataEqualString("FAIL", buffer + bufferPos - 5)){
+      return 2;
     }
   }
   if(bufferPos >= 6){
@@ -142,13 +150,13 @@ bool sendCommandToServer(uint8_t commandID, const char * data = nullptr, uint32_
   return defaultCommandPart();
 }
 
-
+unsigned long lastGroupReq = 0;
 
 void loop() {
   // put your main code here, to run repeatedly:
-  digitalWrite(13, LOW);
+  digitalWrite(InternalLed, LOW);
 
-  delay(1000);
+  delay(LoopDelay);
 
   //TEST IF WIFI MODULE IS ONLINE
   if(!sendCommandString("AT")){
@@ -166,7 +174,7 @@ void loop() {
   }
 
   //SET MULTI CONNECTION MODE
-  if(!sendCommandString("AT+CIPMUX=1")){
+  if(!sendCommandString("AT+CIPMUX=0")){
     return;
   }
 
@@ -177,14 +185,16 @@ void loop() {
 
   clearBuffer();
 
-  digitalWrite(13, HIGH); //SHOW THAT I HAVE CONNECTION WITH WIFI
+  digitalWrite(InternalLed, HIGH); //SHOW THAT I HAVE CONNECTION WITH WIFI
 
   for(;;){
+    unsigned long now = millis();
+    
     if(checkServerRecieve()){
       switch(buffer[0]){
         case GroupRevCID:
-          PORTD |= (buffer[1] << 2);
-          PORTD &= ~(buffer[1] << 2);
+          //PORTD |= (buffer[1] << 2);
+          //PORTD &= ~(buffer[1] << 2);
           break;
         case PingCID:
           sendCommandToServer(PongCID);
@@ -192,6 +202,12 @@ void loop() {
 
       clearBuffer();
     }
-    delay(2000);
+
+    if(lastGroupReq + InfoReqInterval < now){
+      lastGroupReq = now;
+      sendCommandToServer(GroupReqCID);
+    }
+    
+    delay(LoopDelay);
   }
 }

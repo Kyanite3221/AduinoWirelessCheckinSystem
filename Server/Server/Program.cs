@@ -28,9 +28,13 @@ namespace UDPServer {
 
                 switch (command) {
                     case CommandID.RFIDRev:
+                        Console.WriteLine($"{sender.Address.ToString()}: RFID RECIEVED");
+
                         //code for SQL group and log storage
                         break;
                     case CommandID.InfoReq:
+                        Console.WriteLine($"{sender.Address.ToString()}: INFOREQ RECIEVED");
+
                         //code for SQL group read
                         byte data = 0b1111_1111;
 
@@ -41,11 +45,16 @@ namespace UDPServer {
                         }
                         break;
                     case CommandID.Ping:
+                        Console.WriteLine($"{sender.Address.ToString()}: PING RECIEVED");
+
                         using (UdpClient client = new UdpClient()) {
                             client.Connect(sender);
-                            client.Send(new byte[1] { (byte)CommandID.Pong }, 1);
+                            client.Send(new byte[1] { (byte)CommandID.Ping }, 1);
                             client.Close();
                         }
+                        break;
+                    case CommandID.Pong:
+                        Console.WriteLine($"{sender.Address.ToString()}: PONG RECIEVED");
                         break;
                     default:
                         break;
