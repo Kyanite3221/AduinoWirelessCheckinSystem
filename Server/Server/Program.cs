@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 namespace UDPServer {
 
     class Program {
+        private static SQLHelper database = new SQLHelper();
+
         enum CommandID : byte {
             RFIDRev = 1,
             InfoReq =  2,
@@ -36,11 +38,11 @@ namespace UDPServer {
                         Console.WriteLine($"{sender.Address.ToString()}: INFOREQ RECIEVED");
 
                         //code for SQL group read
-                        byte data = 0b1111_1111;
+                        //byte data = 0b1111_1111;
 
                         using (UdpClient client = new UdpClient()) {
                             client.Connect(sender);
-                            client.Send(new byte[2] { (byte)CommandID.GroupSend, data }, 2);
+                            client.Send(new byte[2] { (byte)CommandID.GroupSend, database.ReadGroups() }, 2);
                             client.Close();
                         }
                         break;
