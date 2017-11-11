@@ -23,6 +23,8 @@ namespace UDPServer {
             UdpClient server = new UdpClient(new IPEndPoint(IPAddress.Any, 12345));
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
 
+            //database.LogRFID("123");
+
             for (;;) {
                 byte[] Bdata = server.Receive(ref sender);
 
@@ -30,12 +32,12 @@ namespace UDPServer {
 
                 switch (command) {
                     case CommandID.RFIDRev:
-                        Console.WriteLine($"{sender.Address.ToString()}: RFID RECIEVED");
+                        Console.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}: {sender.Address.ToString()}: RFID RECIEVED");
 
                         //code for SQL group and log storage
                         break;
                     case CommandID.InfoReq:
-                        Console.WriteLine($"{sender.Address.ToString()}: INFOREQ RECIEVED");
+                        Console.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}: {sender.Address.ToString()}: INFOREQ RECIEVED");
 
                         //code for SQL group read
                         //byte data = 0b1111_1111;
@@ -47,7 +49,7 @@ namespace UDPServer {
                         }
                         break;
                     case CommandID.Ping:
-                        Console.WriteLine($"{sender.Address.ToString()}: PING RECIEVED");
+                        Console.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}: {sender.Address.ToString()}: PING RECIEVED");
 
                         using (UdpClient client = new UdpClient()) {
                             client.Connect(sender);
@@ -56,7 +58,7 @@ namespace UDPServer {
                         }
                         break;
                     case CommandID.Pong:
-                        Console.WriteLine($"{sender.Address.ToString()}: PONG RECIEVED");
+                        Console.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}: {sender.Address.ToString()}: PONG RECIEVED");
                         break;
                     default:
                         break;

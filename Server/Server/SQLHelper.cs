@@ -32,7 +32,7 @@ namespace UDPServer {
                     }
                 }
             }catch(Exception ex) {
-                Console.Error.WriteLine(ex.GetType().FullName + " " + ex.Message + ":\n" + ex.StackTrace);
+                Console.Error.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}: {ex.GetType().FullName} {ex.Message}:\n{ex.StackTrace}");
             }
 
             return (byte)result;
@@ -55,16 +55,18 @@ namespace UDPServer {
                     da.Fill(ds);
                     dt = ds.Tables[0];
 
-                    bool present = (bool)dt.Rows[0]["present"];
+                    bool isPresent = (bool)dt.Rows[0]["present"];
                     int groupId = (int)dt.Rows[0]["groupid"];
 
-                    query = $"UPDATE public.grouplookup AS GL SET present = {!present} WHERE GL.groupid = {groupId}";
+                    Console.Out.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}: {dt.Rows[0]["ownername"]} set group {dt.Rows[0]["groupname"]} presences to {!isPresent}");
+
+                    query = $"UPDATE public.grouplookup AS GL SET present = {!isPresent} WHERE GL.groupid = {groupId}";
                     if (new NpgsqlCommand(query, conn).ExecuteNonQuery() != 1) {
                         throw new Exception("No rows updated");
                     }
                 }
             } catch (Exception ex) {
-                Console.Error.WriteLine(ex.GetType().FullName + " " + ex.Message + ":\n" + ex.StackTrace);
+                Console.Error.WriteLine($"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}: {ex.GetType().FullName} {ex.Message}:\n{ex.StackTrace}");
             }
         }
     }
